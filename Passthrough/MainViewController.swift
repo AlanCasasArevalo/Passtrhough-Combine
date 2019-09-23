@@ -7,10 +7,9 @@
 //
 
 import UIKit
-import RxSwift
-import RxCocoa
+import Combine
 
-
+@available(iOS 13.0, *)
 class MainViewController: UIViewController {
     
     let stringValueToObserver = "value"
@@ -18,15 +17,13 @@ class MainViewController: UIViewController {
     @IBOutlet weak var stackView: UIStackView!
     var value = 0 {
         didSet {
-            valueStream.onNext(value)
+            valueStream.send(value)
         }
     }
     
-    let valueStream = BehaviorSubject<Int> (value: 0)
+    let valueStream = PassthroughSubject<Int, Never>()
+    var cancels: [Cancellable] = []
     
-    
-    
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -39,13 +36,28 @@ class MainViewController: UIViewController {
         label.textAlignment = .center
         label.heightAnchor.constraint(equalToConstant: 40).isActive = true
         stackView.insertArrangedSubview(label, at: 0)
-        _ = valueStream.map {
-                "\($0)"
-            }
-        .bind(to: label.rx.text)
-        
-    }
     
+        let objectToCheck = valueStream.map { "\($0)" }
+        .handleEvents(receiveSubscription: { element in
+            print("receiveSubscription")
+            print(element)
+        }, receiveOutput: { element in
+            print("receiveOutput")
+            print(element)
+        }, receiveCompletion: { element in
+            print("receiveOutput")
+            print(element)
+        }, receiveCancel: {
+            print("receiveCancel")
+
+        }, receiveRequest: { element in
+            print("receiveCancel")
+            print(element)
+        })
+        .assign(to: \.text, on: label)
+            cancels.append(objectToCheck)            
+        }
+        
     @IBAction func addNewItemButtonPressed(_ sender: Any) {
         createNewLabel()
     }

@@ -19,10 +19,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         
-        let rootVC = MainViewController()
-        rootVC.view.backgroundColor = UIColor.cyan
-        
-        window?.rootViewController = rootVC
+        if #available(iOS 13.0, *) {
+            let rootVC = MainViewController()
+            rootVC.view.backgroundColor = UIColor.cyan            
+            window?.rootViewController = rootVC
+        } else {
+            // Fallback on earlier versions
+        }
         return true
     }
 
