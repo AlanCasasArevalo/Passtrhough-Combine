@@ -21,7 +21,7 @@ class MainViewController: UIViewController {
         }
     }
     
-    let valueStream = PassthroughSubject<Int, Never>()
+    let valueStream = CurrentValueSubject<Int, Never>(0)
     var cancels: [Cancellable] = []
     
     override func viewDidLoad() {
@@ -38,24 +38,8 @@ class MainViewController: UIViewController {
         stackView.insertArrangedSubview(label, at: 0)
     
         let objectToCheck = valueStream.map { "\($0)" }
-        .handleEvents(receiveSubscription: { element in
-            print("receiveSubscription")
-            print(element)
-        }, receiveOutput: { element in
-            print("receiveOutput")
-            print(element)
-        }, receiveCompletion: { element in
-            print("receiveOutput")
-            print(element)
-        }, receiveCancel: {
-            print("receiveCancel")
-
-        }, receiveRequest: { element in
-            print("receiveCancel")
-            print(element)
-        })
         .assign(to: \.text, on: label)
-            cancels.append(objectToCheck)            
+            cancels.append(objectToCheck)
         }
         
     @IBAction func addNewItemButtonPressed(_ sender: Any) {
