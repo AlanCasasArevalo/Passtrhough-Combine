@@ -22,7 +22,7 @@ class MainViewController: UIViewController {
         }
     }
     
-    let valueStream = PublishSubject<Int> ()
+    let valueStream = BehaviorSubject<Int> (value: 0)
     
     
     
