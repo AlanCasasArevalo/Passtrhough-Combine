@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
+
 
 class MainViewController: UIViewController {
     
@@ -15,9 +18,14 @@ class MainViewController: UIViewController {
     @IBOutlet weak var stackView: UIStackView!
     var value = 0 {
         didSet {
-            NotificationCenter.default.post(name: .init(stringValueToObserver), object: value)
+            valueStream.onNext(value)
         }
     }
+    
+    let valueStream = PublishSubject<Int> ()
+    
+    
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,15 +39,10 @@ class MainViewController: UIViewController {
         label.textAlignment = .center
         label.heightAnchor.constraint(equalToConstant: 40).isActive = true
         stackView.insertArrangedSubview(label, at: 0)
-        
-        NotificationCenter.default.addObserver(forName: .init(stringValueToObserver),
-                                               object: nil,
-                                               queue: OperationQueue.main) { notification in
-                                                    if let value = notification.object as? Int {
-                                                        label.text = "\(value)"
-                                                    }
-                                                
-                                                }
+        _ = valueStream.map {
+                "\($0)"
+            }
+        .bind(to: label.rx.text)
         
     }
     
